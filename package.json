@@ -6,9 +6,7 @@
     "@openzeppelin/contracts": "^4.4.2"
   },
   "files": [
-    "/contracts/**/*.sol",
-    "/build/contracts/*.json",
-    "!/contracts/mocks/**/*"
+    "**/*.sol"
   ],
   "repository": {
     "type": "git",
@@ -16,8 +14,8 @@
   },
   "keywords": [
     "solidity",
-    "contracts",
     "smart",
+    "contracts",
     "ethereum",
     "evm",
     "paperxyz",
