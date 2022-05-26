@@ -32,6 +32,7 @@ contract YourNFTContract is ... , PaperVerification{
             PaperMintData.MintData calldata _mintData,
             bytes calldata _data
         ) external onlyPaper(_mintData) {
+            // your mint function here
             _safeMint(_mintData.recipient, _mintData.quantity, _data);
     }
 
