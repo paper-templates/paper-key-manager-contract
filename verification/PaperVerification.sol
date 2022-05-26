@@ -4,15 +4,11 @@ pragma solidity >=0.8.9 <0.9.0;
 import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 import "./structs/PaperMintData.sol";
 
-contract PaperVerification is EIP712 {
+contract PaperVerification is EIP712("Paper", "1") {
     address private paperKey;
     mapping(uint256 => bool) private minted;
 
-    constructor(
-        string memory _name,
-        string memory _version,
-        address _paperKey
-    ) EIP712(_name, _version) {
+    constructor(address _paperKey) {
         paperKey = _paperKey;
     }
 

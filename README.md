@@ -17,18 +17,25 @@ This package allows developers to easily integrate their solidity smart contract
 
 Create a `Paper ERC721 primary contract`. You will receive a key which you must give a `MINTER` role or some other role which allows paper to mint for free.
 
-After whitelisting this key, all you need to do is add a function that uses the `onlyPaper` modifier.
+After whitelisting this key, all you need to do is to initialize this key in the constructor and add a function that uses the `onlyPaper` modifier.
 
 ```solidity
-import "@paperxyz/contracts/PaperVerification.sol"
+import "@paperxyz/contracts/verification/PaperVerification.sol"
 
-...
+contract YourNFTContract is ... , PaperVerification{
 
-function paperMint(
-        PaperMintData.MintData calldata _mintData,
-        bytes calldata _data
-    ) external onlyPaper(_mintData) {
-        _safeMint(_mintData.recipient, _mintData.quantity, _data);
+    constructor(address _paperKey, .... ) PaperVerification(_paperKey) { ... }
+
+    ...
+
+    function paperMint(
+            PaperMintData.MintData calldata _mintData,
+            bytes calldata _data
+        ) external onlyPaper(_mintData) {
+            _safeMint(_mintData.recipient, _mintData.quantity, _data);
+    }
+
+    ...
 }
 ```
 
