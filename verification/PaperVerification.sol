@@ -18,9 +18,9 @@ contract PaperVerification is EIP712("Paper", "1") {
         _;
     }
 
-    /// @notice Verifies the signature for a given MintData, returning the address of the signer.
-    /// @dev Will revert if the signature is invalid. Does not verify that the signer is authorized to mint NFTs.
-    /// @param _data An MintData describing the transaction details.
+    /// @notice Verifies the signature for a given MintData
+    /// @dev Will revert if the signature is invalid i.e. not the paperKey passed in the constructor. Does not verify that the signer (paperKey) is authorized to mint NFTs.
+    /// @param _data MintData describing the transaction details.
     function _checkValidity(
         PaperMintData.MintData calldata _data,
         address _paperKey

@@ -10,7 +10,7 @@ library PaperMintData {
     }
 
     /// @notice Returns a hash of the given MintData, prepared using EIP712 typed data hashing rules.
-    /// @param _data the MintData to hash.
+    /// @param _data is the MintData to hash.
     function hashData(MintData calldata _data) internal pure returns (bytes32) {
         bytes memory encoded = abi.encode(
             keccak256(
