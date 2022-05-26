@@ -2,7 +2,7 @@
   "name": "@paperxyz/contracts",
   "version": "0.0.5",
   "description": "Contracts to help easily bootstrap paper compatible smart contracts on EVM chains",
-  "dependencies": {
+  "peerDependencies": {
     "@openzeppelin/contracts": "^4.4.2"
   },
   "files": [
