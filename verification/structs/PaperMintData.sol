@@ -5,7 +5,7 @@ library PaperMintData {
     struct MintData {
         address recipient;
         uint256 quantity;
-        uint256 nonce;
+        bytes32 nonce;
         bytes signature;
     }
 
@@ -14,7 +14,7 @@ library PaperMintData {
     function hashData(MintData calldata _data) internal pure returns (bytes32) {
         bytes memory encoded = abi.encode(
             keccak256(
-                "MintData(address recipient,uint256 quantity,uint256 nonce)"
+                "MintData(address recipient,uint256 quantity,bytes32 nonce)"
             ),
             _data.recipient,
             _data.quantity,

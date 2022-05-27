@@ -6,7 +6,7 @@ import "./structs/PaperMintData.sol";
 
 contract PaperVerification is EIP712("Paper", "1") {
     address private paperKey;
-    mapping(uint256 => bool) private minted;
+    mapping(bytes32 => bool) private minted;
 
     constructor(address _paperKey) {
         paperKey = _paperKey;
@@ -32,7 +32,7 @@ contract PaperVerification is EIP712("Paper", "1") {
         require(!isMinted(_data.nonce), "Mint request already processed");
     }
 
-    function isMinted(uint256 nonce) private view returns (bool) {
+    function isMinted(bytes32 nonce) private view returns (bool) {
         return minted[nonce];
     }
 }
