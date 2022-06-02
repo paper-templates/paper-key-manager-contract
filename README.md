@@ -15,9 +15,25 @@ This package allows developers to easily integrate their solidity smart contract
 
 ## Usage
 
-Create a `Paper ERC721 primary contract`. You will receive a key which you must give a `MINTER` role or some other role which allows paper to mint for free.
+Create a `Paper ERC721 primary contract`. You will receive a key which you should give a privileged role. This key will be use to verify that the contract is being called by us instead of someone else.
 
-After whitelisting this key, all you need to do is to initialize this key in the constructor and add a function that uses the `onlyPaper` modifier.
+After whitelisting this key, all you need to do is to initialize this key in the constructor.
+
+```solidity
+
+import "@paperxyz/contracts/verification/PaperVerification.sol"
+
+contract YourNFTContract is ... , PaperVerification{
+
+    constructor(address _paperKey, .... ) PaperVerification(_paperKey) ... { ... }
+
+    ...
+}
+```
+
+Finally to guard a method so that only we can call it, use the `onlyPaper` modifier.
+
+There are some pointers when calling the `onlyPaper` functions as documented inline with the code.
 
 ```solidity
 import "@paperxyz/contracts/verification/PaperVerification.sol"
@@ -27,11 +43,31 @@ contract YourNFTContract is ... , PaperVerification{
     constructor(address _paperKey, .... ) PaperVerification(_paperKey) { ... }
 
     ...
-
+    // New function
     function paperMint(
-            PaperMintData.MintData calldata _mintData,
-            bytes calldata _data
-        ) external onlyPaper(_mintData) {
+            address _recipient,
+            uint256 _quantity,
+
+            // params that you need to accept from us
+            bytes32 _nonce,
+            bytes calldata _signature
+        ) external onlyPaper(
+            // encode your function params here.
+            // Note that we use "PrimaryData" here to indicate the name type for the struct always.
+            // Finally, we have the _nonce as the last params after all your parameters always.
+            // Custom struct like "User" or something is not currently supported
+            abi.encode(
+                keccak256(
+                    "PrimaryData(address recipient,uint256 quantity,bytes32 nonce)"
+                ),
+                _recipient,
+                _quantity,
+                _nonce
+            ),
+            // always like this
+            _nonce,
+            _signature
+        ) {
             // your mint function here
             _safeMint(_mintData.recipient, _mintData.quantity, _data);
     }
