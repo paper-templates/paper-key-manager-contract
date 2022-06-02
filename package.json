@@ -2,9 +2,6 @@
   "name": "@paperxyz/contracts",
   "version": "0.0.7",
   "description": "Contracts to help easily bootstrap paper compatible smart contracts on EVM chains",
-  "peerDependencies": {
-    "@openzeppelin/contracts": "^4.4.2"
-  },
   "files": [
     "**/*.sol"
   ],
@@ -27,5 +24,11 @@
   "bugs": {
     "url": "https://github.com/paperxyz/contracts/issues"
   },
-  "homepage": "https://github.com/paperxyz/contracts#readme"
+  "homepage": "https://github.com/paperxyz/contracts#readme",
+  "peerDependencies": {
+    "@openzeppelin/contracts": "^4.4.2"
+  },
+  "devDependencies": {
+    "hardhat": "^2.9.7"
+  }
 }
