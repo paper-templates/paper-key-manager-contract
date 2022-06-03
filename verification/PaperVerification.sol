@@ -41,4 +41,12 @@ contract PaperVerification is EIP712("Paper", "1") {
     function isMinted(bytes32 nonce) private view returns (bool) {
         return minted[nonce];
     }
+
+    function setPaperKey(address _paperKey) external {
+        paperKey = _paperKey;
+    }
+
+    function getPaperKey() external view returns (address) {
+        return paperKey;
+    }
 }
