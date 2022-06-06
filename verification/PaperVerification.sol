@@ -42,11 +42,14 @@ contract PaperVerification is EIP712("Paper", "1") {
         return minted[nonce];
     }
 
-    function setPaperKey(address _paperKey) external {
+    /// @notice Updates the paper key that is use to verify in {_checkValidity}.
+    /// @dev Should only be able to be called by trusted addresses
+    /// @param _paperKey The new paper key to use for verification
+    function _setPaperKey(address _paperKey) internal {
         paperKey = _paperKey;
     }
 
-    function getPaperKey() external view returns (address) {
+    function getPaperKey() public view returns (address) {
         return paperKey;
     }
 }
