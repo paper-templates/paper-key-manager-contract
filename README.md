@@ -15,9 +15,9 @@ This package allows developers to easily integrate their solidity smart contract
 
 ## Usage
 
-Create a `Paper ERC721 primary contract`. You will receive a key which you should give a privileged role. This key will be use to verify that the contract is being called by us instead of someone else.
+Generate a new paper key over in the [developer panel](https://paper.xyz/dashboard/developers) by creating a new application. This key will be use to verify that the function is being called by us instead of someone else.
 
-In order to do so, we provide the `onlyPaper` modifier which you can use by first inheriting from `PaperVerification` and passing in the `_paperKey` as a param in the contractor.
+To do so, we provide the `onlyPaper` modifier which you can use by first inheriting from `PaperVerification` and passing instantiating it with the `_paperKey` as a param from the contractor.
 
 ```solidity
 
@@ -31,7 +31,7 @@ contract YourNFTContract is ... , PaperVerification{
 }
 ```
 
-Finally to guard a method so that only we can call it, use the `onlyPaper` modifier and pass in the `MintData`.
+Finally to guard a method so that only we can call it, use the `onlyPaper` modifier and pass in the `MintData` parameter.
 
 ```solidity
     ...
