@@ -69,7 +69,7 @@ contract YourNFTContract is ... , PaperVerification{
 
 ## MintData
 
-The Mint data is a basic solidity struct that looks like
+The Mint data is a basic Solidity struct:
 
 ```solidity
 struct MintData {
@@ -81,7 +81,7 @@ struct MintData {
 }
 ```
 
-If you did not specify `tokeId` in your checkout, then `0` will be pass in by default. `nonce` and `signature` are used by paper to ensure that the same data is not used twice.
+If you did not specify `tokenId` in your checkout, then `0` will be pass in by default. `nonce` and `signature` are used by paper to ensure that the same data is not used twice.
 
 ## Installation
 
