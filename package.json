@@ -26,9 +26,7 @@
   },
   "homepage": "https://github.com/paperxyz/contracts#readme",
   "peerDependencies": {
-    "@openzeppelin/contracts": "^4.4.2"
+    "@openzeppelin/contracts": "^4"
   },
-  "devDependencies": {
-    "hardhat": "^2.9.7"
-  }
+  "devDependencies": {}
 }

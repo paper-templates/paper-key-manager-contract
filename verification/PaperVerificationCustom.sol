@@ -4,44 +4,46 @@ pragma solidity >=0.8.9 <0.9.0;
 import "./PaperVerificationBase.sol";
 import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 
-///@dev usage details
-/// import "@paperxyz/contracts/verification/PaperVerification.sol"
-/// contract YourNFTContract is ... , PaperVerification{
-///     constructor(address _paperKey, .... ) PaperVerification(_paperKey) { ... }
-///     ...
-///     // New function
-///     function paperMint(
-///             address _recipient,
-///             uint256 _quantity,
-///             // params that you need to accept from us
-///             bytes32 _nonce,
-///             bytes calldata _signature
-///         ) external onlyPaper(
-///             // encode your function params here.
-///             // Note that we use "PrimaryData" here to indicate the name type for the /struct always.
-///             // Finally, we have the _nonce as the last params after all your parameters /always.
-///             // Custom struct like "User" or something is not currently supported
-///             abi.encode(
-///                 keccak256(
-///                     "PrimaryData(address recipient,uint256 quantity,bytes32 nonce)"
-///                 ),
-///                 _recipient,
-///                 _quantity,
-///                 _nonce
-///             ),
-///             // always like this
-///             _nonce,
-///             _signature
-///         ) {
-///             // your mint function here
-///             _safeMint(_mintData.recipient, _mintData.quantity, _data);
-///     }
-///     ...
-/// }
+// usage details
+// import "@paperxyz/contracts/verification/PaperVerification.sol"
+// contract YourNFTContract is ... , PaperVerification{
+//     constructor(address _paperKey, .... ) PaperVerification(_paperKey) { ... }
+//     ...
+//     // New function
+//     function paperMint(
+//             address _recipient,
+//             uint256 _quantity,
+//             // params that you need to accept from us
+//             bytes32 _nonce,
+//             bytes calldata _signature
+//         ) external onlyPaper(
+//             // encode your function params here.
+//             // Note that we use "PrimaryData" here to indicate the name type for the /struct always.
+//             // Finally, we have the _nonce as the last params after all your parameters /always.
+//             // Custom struct like "User" or something is not currently supported
+//             abi.encode(
+//                 keccak256(
+//                     "PrimaryData(address recipient,uint256 quantity,bytes32 nonce)"
+//                 ),
+//                 _recipient,
+//                 _quantity,
+//                 _nonce
+//             ),
+//             // always like this
+//             _nonce,
+//             _signature
+//         ) {
+//             // your mint function here
+//             _safeMint(_mintData.recipient, _mintData.quantity, _data);
+//     }
+//     ...
+// }
 contract PaperVerificationCustom is
     EIP712("Paper", "1"),
     PaperVerificationBase
 {
+    constructor(address _paperKey) PaperVerificationBase(_paperKey) {}
+
     modifier onlyPaper(
         bytes memory _data,
         bytes32 _nonce,
@@ -59,7 +61,7 @@ contract PaperVerificationCustom is
         bytes32 _nonce,
         bytes calldata _signature,
         address _paperKey
-    ) internal view {
+    ) internal {
         bytes32 digest = _hashTypedDataV4(keccak256(_data));
         address signer = ECDSA.recover(digest, _signature);
         require(signer == _paperKey, "Invalid signature");

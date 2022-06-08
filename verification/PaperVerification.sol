@@ -6,6 +6,8 @@ import "./PaperVerificationBase.sol";
 import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 
 contract PaperVerification is EIP712("Paper", "1"), PaperVerificationBase {
+    constructor(address _paperKey) PaperVerificationBase(_paperKey) {}
+
     modifier onlyPaper(PaperMintData.MintData calldata _data) {
         _checkValidity(_data, paperKey);
         _;
@@ -17,7 +19,7 @@ contract PaperVerification is EIP712("Paper", "1"), PaperVerificationBase {
     function _checkValidity(
         PaperMintData.MintData calldata _data,
         address _paperKey
-    ) internal view {
+    ) internal {
         bytes32 digest = _hashTypedDataV4(PaperMintData.hashData(_data));
         address signer = ECDSA.recover(digest, _data.signature);
         require(signer == _paperKey, "Invalid signature");
