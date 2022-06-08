@@ -1,6 +1,6 @@
 {
   "name": "@paperxyz/contracts",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "Contracts to help easily bootstrap paper compatible smart contracts on EVM chains",
   "files": [
     "**/*.sol"
