@@ -17,7 +17,7 @@ This package allows developers to easily integrate their solidity smart contract
 
 Create a `Paper ERC721 primary contract`. You will receive a key which you should give a privileged role. This key will be use to verify that the contract is being called by us instead of someone else.
 
-After whitelisting this key, all you need to do is to initialize this key in the constructor.
+In order to do so, we provide the `onlyPaper` modifier which you can use by first inheriting from `PaperVerification` and passing in the `_paperKey` as a param in the contractor.
 
 ```solidity
 
@@ -31,50 +31,57 @@ contract YourNFTContract is ... , PaperVerification{
 }
 ```
 
-Finally to guard a method so that only we can call it, use the `onlyPaper` modifier.
+Finally to guard a method so that only we can call it, use the `onlyPaper` modifier and pass in the `MintData`.
 
-There are some pointers when calling the `onlyPaper` functions as documented inline with the code.
+```solidity
+    ...
+    function paperMint(
+            PaperMintData.MintData calldata _mintData,
+            bytes calldata _data
+        ) external onlyPaper(_mintData) {
+            // your mint function here
+            _safeMint(_mintData.recipient, _mintData.quantity, _data);
+    }
+    ...
+}
+```
+
+## Full Snippet
 
 ```solidity
 import "@paperxyz/contracts/verification/PaperVerification.sol"
 
 contract YourNFTContract is ... , PaperVerification{
 
-    constructor(address _paperKey, .... ) PaperVerification(_paperKey) { ... }
+    constructor(address _paperKey, .... ) PaperVerification(_paperKey) ... { ... }
 
     ...
-    // New function
     function paperMint(
-            address _recipient,
-            uint256 _quantity,
-
-            // params that you need to accept from us
-            bytes32 _nonce,
-            bytes calldata _signature
-        ) external onlyPaper(
-            // encode your function params here.
-            // Note that we use "PrimaryData" here to indicate the name type for the struct always.
-            // Finally, we have the _nonce as the last params after all your parameters always.
-            // Custom struct like "User" or something is not currently supported
-            abi.encode(
-                keccak256(
-                    "PrimaryData(address recipient,uint256 quantity,bytes32 nonce)"
-                ),
-                _recipient,
-                _quantity,
-                _nonce
-            ),
-            // always like this
-            _nonce,
-            _signature
-        ) {
+            PaperMintData.MintData calldata _mintData,
+            bytes calldata _data
+        ) external onlyPaper(_mintData) {
             // your mint function here
-            _safeMint(_mintData.recipient, _mintData.quantity, _data);
+            _safeMint(recipient, quantity);
     }
-
     ...
 }
 ```
+
+## MintData
+
+The Mint data is a basic solidity struct that looks like
+
+```solidity
+struct MintData {
+    address recipient;
+    uint256 quantity;
+    uint256 tokenId;
+    bytes32 nonce;
+    bytes signature;
+}
+```
+
+If you did not specify `tokeId` in your checkout, then `0` will be pass in by default. `nonce` and `signature` are used by paper to ensure that the same data is not used twice.
 
 ## Installation
 
