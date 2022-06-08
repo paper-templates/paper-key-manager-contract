@@ -53,23 +53,24 @@ contract YourNFTContract is ... , PaperVerification{
             bytes calldata _signature
         ) external onlyPaper(
             // encode your function params here.
-            // Note that we use "PrimaryData" here to indicate the name type for the struct always.
-            // Finally, we have the _nonce as the last params after all your parameters always.
+            // Note that we always use "PrimaryData" here to indicate the name type for the struct.
+            // Finally, we always have the _nonce as the last params after all your parameters.
             // Custom struct like "User" or something is not currently supported
             abi.encode(
                 keccak256(
+                    // Note that there is no space between the commas!
                     "PrimaryData(address recipient,uint256 quantity,bytes32 nonce)"
                 ),
                 _recipient,
                 _quantity,
                 _nonce
             ),
-            // always like this
+            // _nonce and _signature always gets passed on in this order
             _nonce,
             _signature
         ) {
             // your mint function here
-            _safeMint(_mintData.recipient, _mintData.quantity, _data);
+            _safeMint(recipient, quantity);
     }
 
     ...
