@@ -3,13 +3,13 @@ pragma solidity >=0.8.9 <0.9.0;
 
 abstract contract PaperVerificationBase {
     address internal paperKey;
-    mapping(bytes32 => bool) private minted;
+    mapping(bytes32 => bool) internal minted;
 
     constructor(address _paperKey) {
         paperKey = _paperKey;
     }
 
-    function isMinted(bytes32 nonce) private view returns (bool) {
+    function isMinted(bytes32 nonce) public view returns (bool) {
         return minted[nonce];
     }
 
