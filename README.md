@@ -17,7 +17,7 @@ This package allows developers to easily integrate their solidity smart contract
 
 Create a `Paper ERC721 primary contract`. You will receive a key which you should give a privileged role. This key will be use to verify that the contract is being called by us instead of someone else.
 
-After whitelisting this key, all you need to do is to initialize this key in the constructor.
+In order to do so, we provide the `onlyPaper` modifier which you can use by first inheriting from `PaperVerification` and passing in the `_paperKey` as a param in the contractor.
 
 ```solidity
 
@@ -31,7 +31,7 @@ contract YourNFTContract is ... , PaperVerification{
 }
 ```
 
-Finally to guard a method so that only we can call it, use the `onlyPaper` modifier.
+Finally to guard a method so that only we can call it, use the `onlyPaper` modifier and pass in the `MintData`.
 
 ```solidity
     ...
@@ -66,6 +66,22 @@ contract YourNFTContract is ... , PaperVerification{
     ...
 }
 ```
+
+## MintData
+
+The Mint data is a basic solidity struct that looks like
+
+```solidity
+struct MintData {
+    address recipient;
+    uint256 quantity;
+    uint256 tokenId;
+    bytes32 nonce;
+    bytes signature;
+}
+```
+
+If you did not specify `tokeId` in your checkout, then `0` will be pass in by default. `nonce` and `signature` are used by paper to ensure that the same data is not used twice.
 
 ## Installation
 
