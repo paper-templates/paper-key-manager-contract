@@ -38,7 +38,10 @@ import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 ///     }
 ///     ...
 /// }
-contract PaperVerification is EIP712("Paper", "1"), PaperVerificationBase {
+contract PaperVerificationCustom is
+    EIP712("Paper", "1"),
+    PaperVerificationBase
+{
     modifier onlyPaper(
         bytes memory _data,
         bytes32 _nonce,
