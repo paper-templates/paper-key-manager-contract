@@ -15,7 +15,7 @@ This package allows developers to easily integrate their solidity smart contract
 
 ## Usage
 
-Generate a new paper key over in the [developer panel](https://paper.xyz/dashboard/developers) by creating a new application. This key will be use to verify that the function is being called by us instead of someone else.
+Get your paper key over in the [developer dashboard](https://paper.xyz/dashboard/developers). This key will be use to verify that the function is being called by us instead of someone else.
 
 To do so, we provide the `onlyPaper` modifier which you can use by first inheriting from `PaperVerification` and passing instantiating it with the `_paperKey` as a param from the contractor.
 
