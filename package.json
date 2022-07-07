@@ -28,5 +28,7 @@
   "peerDependencies": {
     "@openzeppelin/contracts": "^4"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@openzeppelin/contracts": "^4.7.0"
+  }
 }
