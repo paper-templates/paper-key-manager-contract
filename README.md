@@ -37,10 +37,9 @@ Finally to guard a method so that only we can call it, use the `onlyPaper` modif
     ...
     function paperMint(
             PaperMintData.MintData calldata _mintData,
-            bytes calldata _data
         ) external onlyPaper(_mintData) {
             // your mint function here
-            _safeMint(_mintData.recipient, _mintData.quantity, _data);
+            _safeMint(_mintData.recipient, _mintData.quantity, _mintData.data);
     }
     ...
 }
@@ -78,6 +77,7 @@ struct MintData {
     uint256 tokenId;
     bytes32 nonce;
     bytes signature;
+    bytes data;
 }
 ```
 

@@ -8,6 +8,7 @@ library PaperMintData {
         uint256 tokenId;
         bytes32 nonce;
         bytes signature;
+        bytes data;
     }
 
     /// @notice Returns a hash of the given MintData, prepared using EIP712 typed data hashing rules.
@@ -15,12 +16,13 @@ library PaperMintData {
     function hashData(MintData calldata _data) internal pure returns (bytes32) {
         bytes memory encoded = abi.encode(
             keccak256(
-                "MintData(address recipient,uint256 quantity,uint256 tokenId,bytes32 nonce)"
+                "MintData(address recipient,uint256 quantity,uint256 tokenId,bytes32 nonce,bytes data)"
             ),
             _data.recipient,
             _data.quantity,
             _data.tokenId,
-            _data.nonce
+            _data.nonce,
+            keccak256(_data.data)
         );
         return keccak256(encoded);
     }
