@@ -63,6 +63,10 @@ contract YourNFTContract is ... , PaperVerification{
             // your mint function here
             _safeMint(recipient, quantity);
     }
+
+    function setPaperKey(address _paperKey) external onlyOwner {
+        _setPaperKey(_paperKey);
+    }
     ...
 }
 ```
