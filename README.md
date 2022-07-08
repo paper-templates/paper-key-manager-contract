@@ -11,13 +11,54 @@
 
 [Paper](https://paper.xyz) is a developer-first NFT checkout solution that easily onboards users without wallets or cryptocurrencies.
 
-This package allows developers to easily integrate their solidity smart contracts with paper.
+This package allows developers to easily integrate the `paperMint` function with paper.
+
+## Installation
+
+Install the SDK with your favorite package manager `npm` or `yarn` or `pnpm`.
+
+`npm install @paperxyz/contracts`
+
+`yarn add @paperxyz/contracts`
+
+`pnpm add @paperxyz/contracts`
 
 ## Usage
 
-Get your paper key over in the [developer dashboard](https://paper.xyz/dashboard/developers). This key will be use to verify that the function is being called by us instead of someone else.
+The overall implementation will look something like this:
 
-To do so, we provide the `onlyPaper` modifier which you can use by first inheriting from `PaperVerification` and passing instantiating it with the `_paperKey` as a param from the contractor.
+```solidity
+import "@paperxyz/contracts/verification/PaperVerification.sol"
+
+contract YourNFTContract is ... , PaperVerification{
+
+    constructor(address _paperKey, .... ) PaperVerification(_paperKey) ... { ... }
+
+    ...
+    
+    /// @dev paperMint function that will be called by us when a user pays with cross chain crypto // credit card
+    function paperMint(
+            PaperMintData.MintData calldata _mintData,
+            bytes calldata _data
+        ) external onlyPaper(_mintData) {
+            // your mint function here
+            _safeMint(recipient, quantity);
+    }
+    
+    /// @dev to update the paperKey for whatever reason.
+    function setPaperKey(address _paperKey) external onlyOwner {
+        // This is a function which @paperxyz/contracts exposes to update the paperKey if needed
+        _setPaperKey(_paperKey);
+    }
+    ...
+}
+```
+
+### Step by step
+
+1. Get your paper key over in the [developer dashboard](https://paper.xyz/dashboard/developers). This key will be use to verify that the function is being called by us instead of someone else.
+
+2. Your contract should first inheriting from `PaperVerification` and be instantiated with the paper key you got from the dashboard.
 
 ```solidity
 
@@ -31,7 +72,7 @@ contract YourNFTContract is ... , PaperVerification{
 }
 ```
 
-Finally to guard a method so that only we can call it, use the `onlyPaper` modifier and pass in the `MintData` parameter.
+3. Finally we use the `onlyPaper` modifier, passing it the `PaperMintData.MintData` argument from the `paperMint` function.
 
 ```solidity
     ...
@@ -45,30 +86,6 @@ Finally to guard a method so that only we can call it, use the `onlyPaper` modif
 }
 ```
 
-## Full Snippet
-
-```solidity
-import "@paperxyz/contracts/verification/PaperVerification.sol"
-
-contract YourNFTContract is ... , PaperVerification{
-
-    constructor(address _paperKey, .... ) PaperVerification(_paperKey) ... { ... }
-
-    ...
-    function paperMint(
-            PaperMintData.MintData calldata _mintData,
-            bytes calldata _data
-        ) external onlyPaper(_mintData) {
-            // your mint function here
-            _safeMint(recipient, quantity);
-    }
-
-    function setPaperKey(address _paperKey) external onlyOwner {
-        _setPaperKey(_paperKey);
-    }
-    ...
-}
-```
 
 ## MintData
 
@@ -85,14 +102,8 @@ struct MintData {
 }
 ```
 
-If you did not specify `tokenId` in your checkout, then `0` will be pass in by default. `nonce` and `signature` are used by paper to ensure that the same data is not used twice.
+If you did not specify `tokenId` in your checkout, then `0` will be pass in by default. `nonce` and `signature` are used by paper to ensure that a given `MintData` param is used only once.
 
-## Installation
+## How it works
 
-Install the SDK with your favorite package manager `npm` or `yarn` or `pnpm`.
-
-`npm install @paperxyz/contracts`
-
-`yarn add @paperxyz/contracts`
-
-`pnpm add @paperxyz/contracts`
+The `onlyPaper` modifier works by verifying the signature which is obtained by signing all the params (`recipient`, `quantity`, and `data` etc.) with the given `paperKey`. Thus, if we recover the `paperKey` from the given signature and parameters, we know that the data is indeed from us since we are the only holders of the `paperKey`'s private key.
