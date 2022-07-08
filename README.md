@@ -106,4 +106,4 @@ If you did not specify `tokenId` in your checkout, then `0` will be pass in by d
 
 ## How it works
 
-The `onlyPaper` modifier works by verifying the signature which is obtained by signing all the params (`recipient`, `quantity`, and `data` etc.) with the given `paperKey`. Thus, if we recover the `paperKey` from the given signature and parameters, we know that the data is indeed from us since we are the only holders of the `paperKey`'s private key.
+The `onlyPaper` modifier works by verifying the signature obtained from signing all the params (`recipient`, `quantity`, and `data` etc.) with the given `paperKey`. Thus, if we recover the `paperKey` from the signature and its parameters, we know that the `PaperMintData.MintData` argument is indeed from us since we are the only holders of the `paperKey`'s private key.
