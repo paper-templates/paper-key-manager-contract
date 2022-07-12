@@ -37,12 +37,11 @@ contract YourNFTContract is ... , PaperVerification{
     ...
     
     /// @dev paperMint function that will be called by us when a user pays with cross chain crypto // credit card
-    function paperMint(
+   function paperMint(
             PaperMintData.MintData calldata _mintData,
-            bytes calldata _data
         ) external onlyPaper(_mintData) {
             // your mint function here
-            _safeMint(recipient, quantity);
+            _safeMint(_mintData.recipient, _mintData.quantity, _mintData.data);
     }
     
     /// @dev to update the paperKey for whatever reason.
