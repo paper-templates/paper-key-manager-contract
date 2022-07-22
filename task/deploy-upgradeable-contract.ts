@@ -34,9 +34,9 @@ task<IDeployContract>(
     ) => {
       await run("compile");
       let args = initializerArgs;
-      if (!args) {
-        args = (await import("../config/ConstructorArgs")).default.slice(0);
-      }
+      // if (!args) {
+      //   args = (await import("../config/ConstructorArgs")).default.slice(0);
+      // }
       const contract = await ethers.getContractFactory(contractName);
       const deployedContract = await upgrades.deployProxy(contract, args, {
         kind: "uups",
