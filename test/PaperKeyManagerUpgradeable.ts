@@ -49,7 +49,7 @@ describe("PaperKeyManagerUpgradeable", function () {
     return text;
   }
 
-  async function createDefaultSignature(signer: SignerWithAddress) {
+  async function createDefaultSignatureFrom(signer: SignerWithAddress) {
     const nonce = ethers.utils.formatBytes32String(getSignatureNonce());
     const data = ["hello", [signer.address, 22]];
     const dataType = ["string", "tuple(address, uint256)"];
@@ -105,6 +105,19 @@ describe("PaperKeyManagerUpgradeable", function () {
         .to.emit(contract, "RegisteredPaperKey")
         .withArgs(randomAccount1.address, paperKey);
     });
+    it("Should not be able to register contract that is already registered", async function () {
+      const { contract, owner, randomAccount1, paperKeySigner } =
+        await loadFixture(DeployContract);
+      const paperKey = paperKeySigner.address;
+
+      await expect(contract.connect(owner).register(paperKey))
+        .to.emit(contract, "RegisteredPaperKey")
+        .withArgs(owner.address, paperKey);
+
+      await expect(
+        contract.connect(owner).register(paperKey)
+      ).to.be.revertedWith("contract already registered");
+    });
     it("Should be able registerBatch of contract and addresses if caller is DEFAULT_ADMIN_ROLE", async function () {
       const { contract, owner, randomAccount1, paperKeySigner } =
         await loadFixture(DeployContract);
@@ -146,9 +159,8 @@ describe("PaperKeyManagerUpgradeable", function () {
   describe("verifying signature", function () {
     it("Should be able to verify signature", async function () {
       const { contract, paperKeySigner } = await loadFixture(DeployContract);
-      const { signature, encodedData, nonce } = await createDefaultSignature(
-        paperKeySigner
-      );
+      const { signature, encodedData, nonce } =
+        await createDefaultSignatureFrom(paperKeySigner);
       await contract.register(paperKeySigner.address);
 
       await expect(contract.verify(encodedData, nonce, signature))
@@ -157,9 +169,8 @@ describe("PaperKeyManagerUpgradeable", function () {
     });
     it("Should not be able to use the same signature again", async function () {
       const { contract, paperKeySigner } = await loadFixture(DeployContract);
-      const { signature, encodedData, nonce } = await createDefaultSignature(
-        paperKeySigner
-      );
+      const { signature, encodedData, nonce } =
+        await createDefaultSignatureFrom(paperKeySigner);
       await contract.register(paperKeySigner.address);
 
       await expect(contract.verify(encodedData, nonce, signature))
@@ -169,9 +180,11 @@ describe("PaperKeyManagerUpgradeable", function () {
         contract.verify(encodedData, nonce, signature)
       ).to.be.revertedWith("Signature already used");
     });
-    it("Should not be able to verify if bytes is wrong", async function () {
+    it("Should not be able to verify if _hash is wrong", async function () {
       const { contract, paperKeySigner } = await loadFixture(DeployContract);
-      const { signature, nonce } = await createDefaultSignature(paperKeySigner);
+      const { signature, nonce } = await createDefaultSignatureFrom(
+        paperKeySigner
+      );
       await contract.register(paperKeySigner.address);
 
       await expect(
@@ -181,7 +194,7 @@ describe("PaperKeyManagerUpgradeable", function () {
 
     it("Should not be able to verify if _nonce is wrong", async function () {
       const { contract, paperKeySigner } = await loadFixture(DeployContract);
-      const { signature, encodedData } = await createDefaultSignature(
+      const { signature, encodedData } = await createDefaultSignatureFrom(
         paperKeySigner
       );
       await contract.register(paperKeySigner.address);
@@ -190,11 +203,11 @@ describe("PaperKeyManagerUpgradeable", function () {
         contract.verify(encodedData, newNonce, signature)
       ).to.be.revertedWith("Invalid signature or hash");
     });
-    it("Should not be able to verify is _signature is wrong", async function () {
+    it("Should not be able to verify if _signature is wrong", async function () {
       const { contract, owner, paperKeySigner } = await loadFixture(
         DeployContract
       );
-      const { nonce, encodedData } = await createDefaultSignature(
+      const { nonce, encodedData } = await createDefaultSignatureFrom(
         paperKeySigner
       );
       await contract.register(paperKeySigner.address);
@@ -214,9 +227,126 @@ describe("PaperKeyManagerUpgradeable", function () {
   });
 
   describe("update contract", function () {
-    it("Should be able to update paperKey if wallet has DEFAULT_ADMIN_ROLE and emit UpdatePaperKey event", async function () {});
-    it("Should be able updateBatch paperKey if wallet has DEFAULT_ADMIN_ROLE", async function () {});
-    it("Should not be able to update paperKey if wallet does not  have DEFAULT_ADMIN_ROLE", async function () {});
-    it("Should not be able updateBatch paperKey if wallet does not have DEFAULT_ADMIN_ROLE", async function () {});
+    it("Should be able to update paperKey if wallet has DEFAULT_ADMIN_ROLE and emit UpdatePaperKey event", async function () {
+      const { contract, owner, randomAccount1, paperKeySigner } =
+        await loadFixture(DeployContract);
+      await contract.register(paperKeySigner.address);
+      await expect(contract.update(owner.address, randomAccount1.address))
+        .to.emit(contract, "UpdatedPaperKey")
+        .withArgs(owner.address, randomAccount1.address);
+    });
+    it("Should not be able to update paperKey if contact has not been first registered", async function () {
+      const { contract, owner, randomAccount1 } = await loadFixture(
+        DeployContract
+      );
+      await expect(
+        contract.update(owner.address, randomAccount1.address)
+      ).to.be.revertedWith("_contractAddress has not been registered");
+    });
+    it("Should be able updateBatch paperKey if wallet has DEFAULT_ADMIN_ROLE", async function () {
+      const { contract, owner, randomAccount1, paperKeySigner } =
+        await loadFixture(DeployContract);
+      await contract.register(paperKeySigner.address);
+      await contract.connect(randomAccount1).register(paperKeySigner.address);
+      await expect(
+        contract.updateBatch(
+          [owner.address, randomAccount1.address],
+          [randomAccount1.address, owner.address]
+        )
+      )
+        .to.emit(contract, "UpdatedPaperKey")
+        .withArgs(randomAccount1.address, owner.address);
+    });
+    it("Should not be able to update paperKey if wallet does not have DEFAULT_ADMIN_ROLE", async function () {
+      const { contract, owner, randomAccount1 } = await loadFixture(
+        DeployContract
+      );
+      await expect(
+        contract
+          .connect(randomAccount1)
+          .update(owner.address, randomAccount1.address)
+      ).to.be.revertedWith(
+        "AccessControl: account 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 is missing role 0x0000000000000000000000000000000000000000000000000000000000000000"
+      );
+    });
+    it("Should not be able updateBatch paperKey if wallet does not have DEFAULT_ADMIN_ROLE", async function () {
+      const { contract, owner, randomAccount1, paperKeySigner } =
+        await loadFixture(DeployContract);
+      await expect(
+        contract
+          .connect(randomAccount1)
+          .updateBatch([owner.address], [randomAccount1.address])
+      ).to.be.revertedWith(
+        "AccessControl: account 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 is missing role 0x0000000000000000000000000000000000000000000000000000000000000000"
+      );
+    });
+    it("Should not be able updateBatch paperKey if the arguments length is mismatched", async function () {
+      const { contract, owner, randomAccount1, paperKeySigner } =
+        await loadFixture(DeployContract);
+      await expect(
+        contract.updateBatch([], [randomAccount1.address])
+      ).to.be.revertedWith(
+        "_contracts and _paperKey arguments have different length"
+      );
+    });
+  });
+  describe("Remove Contract To PaperKey mapping", () => {
+    it("Should be able to remove a contractAddress to PaperKey mapping is caller has DEFAULT_ADMIN_ROLE", async function () {
+      const { contract, owner, paperKeySigner } = await loadFixture(
+        DeployContract
+      );
+      const { signature, encodedData, nonce } =
+        await createDefaultSignatureFrom(paperKeySigner);
+      await contract.register(paperKeySigner.address);
+
+      await expect(contract.verify(encodedData, nonce, signature))
+        .to.emit(contract, "Verified")
+        .withArgs(nonce, signature);
+
+      await expect(contract.remove(owner.address))
+        .to.emit(contract, "DeletedPaperKey")
+        .withArgs(owner.address);
+
+      await expect(
+        contract.verify(encodedData, nonce, signature)
+      ).to.be.revertedWith("Invalid signature or hash");
+    });
+    it("Should fail if contract is not registered before", async function () {
+      const { contract, owner } = await loadFixture(DeployContract);
+      await expect(contract.remove(owner.address)).to.be.revertedWith(
+        "_contractAddress does not exists"
+      );
+    });
+    it("Should be able to removeBatch a contractAddress to PaperKey mapping is caller has DEFAULT_ADMIN_ROLE", async function () {
+      const { contract, owner, randomAccount1, paperKeySigner } =
+        await loadFixture(DeployContract);
+      await contract.register(paperKeySigner.address);
+      await contract.connect(randomAccount1).register(paperKeySigner.address);
+      await expect(
+        contract.removeBatch([owner.address, randomAccount1.address])
+      )
+        .to.emit(contract, "DeletedPaperKey")
+        .withArgs(randomAccount1.address);
+    });
+    it("Should not be able to remove paperKey if wallet does not have DEFAULT_ADMIN_ROLE", async function () {
+      const { contract, owner, randomAccount1 } = await loadFixture(
+        DeployContract
+      );
+      await expect(
+        contract.connect(randomAccount1).remove(owner.address)
+      ).to.be.revertedWith(
+        "AccessControl: account 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 is missing role 0x0000000000000000000000000000000000000000000000000000000000000000"
+      );
+    });
+    it("Should not be able removeBatch paperKey if wallet does not have DEFAULT_ADMIN_ROLE", async function () {
+      const { contract, owner, randomAccount1 } = await loadFixture(
+        DeployContract
+      );
+      await expect(
+        contract.connect(randomAccount1).removeBatch([owner.address])
+      ).to.be.revertedWith(
+        "AccessControl: account 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 is missing role 0x0000000000000000000000000000000000000000000000000000000000000000"
+      );
+    });
   });
 });

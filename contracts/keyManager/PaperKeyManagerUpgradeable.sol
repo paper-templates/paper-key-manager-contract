@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "hardhat/console.sol";
 import "./IPaperKeyManager.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -59,7 +58,11 @@ contract PaperKeyManagerUpgradeable is
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function register(address _paperKey) external override returns (bool) {
+    function register(address _paperKey) public override returns (bool) {
+        require(
+            contractToPaperKeyMapping[msg.sender] == address(0),
+            "contract already registered"
+        );
         contractToPaperKeyMapping[msg.sender] = _paperKey;
         emit RegisteredPaperKey(msg.sender, _paperKey);
         return true;
@@ -107,10 +110,17 @@ contract PaperKeyManagerUpgradeable is
     }
 
     function update(address _contractAddress, address _newPaperKey)
-        external
+        public
         onlyRole(DEFAULT_ADMIN_ROLE)
+        returns (bool)
     {
+        require(
+            contractToPaperKeyMapping[_contractAddress] != address(0),
+            "_contractAddress has not been registered"
+        );
         contractToPaperKeyMapping[_contractAddress] = _newPaperKey;
+        emit UpdatedPaperKey(_contractAddress, _newPaperKey);
+        return true;
     }
 
     function updateBatch(
@@ -120,20 +130,25 @@ contract PaperKeyManagerUpgradeable is
         external
         onlyRole(DEFAULT_ADMIN_ROLE)
         batchCallCompliant(_contracts, _paperKeys)
+        returns (bool)
     {
         for (uint8 i = 0; i < _contracts.length; ++i) {
             address contractAddress = _contracts[i];
             address paperKey = _paperKeys[i];
-            contractToPaperKeyMapping[contractAddress] = paperKey;
-            emit RegisteredPaperKey(contractAddress, paperKey);
+            update(contractAddress, paperKey);
         }
+        return true;
     }
 
     function remove(address _contractAddress)
-        external
+        public
         onlyRole(DEFAULT_ADMIN_ROLE)
         returns (bool)
     {
+        require(
+            contractToPaperKeyMapping[_contractAddress] != address(0),
+            "_contractAddress does not exists"
+        );
         delete contractToPaperKeyMapping[_contractAddress];
         emit DeletedPaperKey(_contractAddress);
         return true;
@@ -146,8 +161,7 @@ contract PaperKeyManagerUpgradeable is
     {
         for (uint256 i = 0; i < _contractAddresses.length; ++i) {
             address contractAddress = _contractAddresses[i];
-            delete contractToPaperKeyMapping[contractAddress];
-            emit DeletedPaperKey(contractAddress);
+            remove(contractAddress);
         }
         return true;
     }
