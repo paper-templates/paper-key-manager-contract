@@ -11,14 +11,20 @@
 
 [Paper](https://paper.xyz) is a developer-first NFT checkout solution that easily onboard users without wallets or cryptocurrencies.
 
-This package allows developers to easily implement signature minting where Paper manages all the key used in signing
+# Paper Key Manager
 
-## Installation
+## Usage
 
-Install the SDK with your favorite package manager `npm` or `yarn` or `pnpm`.
-
-`npm install @paperxyz/contracts`
-
-`yarn add @paperxyz/contracts`
-
-`pnpm add @paperxyz/contracts`
+```solidity
+const YourContract {
+    IPaperKeyManager paperKeyManager;
+    constructor(..., address _paperKeyManagerAddress, address _paperKey) {
+        // to set the initial paperKey for the contract
+        paperKeyManager = IPaperKeyManager(_paperKeyManager);
+        paperKeyManager.register(_paperKey);
+    }
+    function yourFunction(... your params, bytes32 _nonce, bytes calldata _signature) ... {
+        paperKeyManager.verify(keccak256(abi.encode(...your params, _nonce)), _nonce, _signature);
+    }
+}
+```

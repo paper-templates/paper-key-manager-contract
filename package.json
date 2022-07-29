@@ -3,8 +3,13 @@
   "version": "0.0.17",
   "description": "Contracts to help easily bootstrap paper compatible smart contracts on EVM chains",
   "files": [
-    "**/*.sol"
+    "/contracts/**/*.sol"
   ],
+  "scripts": {
+    "release": "cd ./contracts && npm publish && cd ../",
+    "test": "hardhat test",
+    "gas-report": "cross-env ENABLE_GAS_REPORT=true npm run test"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/paperxyz/contracts.git"
@@ -25,12 +30,11 @@
     "url": "https://github.com/paperxyz/contracts/issues"
   },
   "homepage": "https://github.com/paperxyz/contracts#readme",
-  "dependencies": {
+  "peerDependencies": {
     "@openzeppelin/contracts": "^4",
-    "@openzeppelin/contracts-upgradeable": "^4.7.0"
+    "@openzeppelin/contracts-upgradeable": "^4"
   },
   "devDependencies": {
-    "@openzeppelin/contracts": "^4.7.0",
     "@ethersproject/abi": "^5.6.4",
     "@ethersproject/bytes": "^5.6.1",
     "@ethersproject/providers": "^5.6.8",
@@ -39,6 +43,7 @@
     "@nomicfoundation/hardhat-toolbox": "^1.0.2",
     "@nomiclabs/hardhat-ethers": "^2.1.0",
     "@nomiclabs/hardhat-etherscan": "^3.1.0",
+    "@openzeppelin/contracts": "^4.7.0",
     "@openzeppelin/contracts-upgradeable": "^4.7.0",
     "@openzeppelin/hardhat-upgrades": "^1.19.0",
     "@typechain/ethers-v5": "^10.1.0",
@@ -47,6 +52,7 @@
     "@types/mocha": "^9.1.1",
     "@types/node": "^18.0.6",
     "chai": "^4.3.6",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.0.1",
     "ethers": "^5.6.9",
     "hardhat": "^2.10.1",

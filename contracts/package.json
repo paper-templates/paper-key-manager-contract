@@ -1,0 +1,32 @@
+{
+  "name": "@paperxyz/contracts",
+  "description": "Contracts to help easily bootstrap paper compatible smart contracts on EVM chains",
+  "version": "0.0.17",
+  "files": [
+    "**/*.sol"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paperxyz/contracts.git"
+  },
+  "keywords": [
+    "solidity",
+    "smart",
+    "contracts",
+    "ethereum",
+    "evm",
+    "paperxyz",
+    "paper",
+    "compatible"
+  ],
+  "author": "Paper.xyz <team@paper.xyz>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/paperxyz/contracts/issues"
+  },
+  "homepage": "https://github.com/paperxyz/contracts#readme",
+  "peerDependencies": {
+    "@openzeppelin/contracts": "^4",
+    "@openzeppelin/contracts-upgradeable": "^4"
+  }
+}

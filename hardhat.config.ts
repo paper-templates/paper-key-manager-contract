@@ -41,7 +41,7 @@ const config: HardhatUserConfig = {
       },
     },
   },
-  paths: { sources: "./verification" },
+  paths: { sources: "./contracts" },
   networks: {
     hardhat: {
       forking: {

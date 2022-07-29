@@ -3,7 +3,6 @@ import { expect } from "chai";
 import { Contract } from "ethers";
 import { ethers, upgrades } from "hardhat";
 import ConstructorArgs from "../config/ConstructorArgs";
-import { ERC20Upgradeable, PaperMultiCall } from "../typechain-types";
 
 const IERC20 =
   "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:ERC20Upgradeable";
