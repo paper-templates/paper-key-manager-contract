@@ -14,12 +14,12 @@ interface IPaperKeyManager {
 
     /// @notice Verifies if the given @param _data is from Paper and have not been used before
     /// @dev Called as the first line in your function or extracted in a modifier. Refer to the Documentation for more usage details.
-    /// @param _data The btyes32 encoding of the data passed into your function
-    /// @param _nonce a random set of bytes Paper passes your function which you forward. This helps ensure that the @param _data has not been used before.
-    /// @param _signature used to verify that Paper was the one who sent the @param _data
-    /// @return bool indicating if the @param _data was successfully verified
+    /// @param _hash The bytes32 encoding of the data passed into your function
+    /// @param _nonce a random set of bytes Paper passes your function which you forward. This helps ensure that the @param _hash has not been used before.
+    /// @param _signature used to verify that Paper was the one who sent the @param _hash
+    /// @return bool indicating if the @param _hash was successfully verified
     function verify(
-        bytes32 _data,
+        bytes32 _hash,
         bytes32 _nonce,
         bytes calldata _signature
     ) external returns (bool);
