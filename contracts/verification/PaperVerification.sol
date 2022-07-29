@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: APACHE-2.0
-pragma solidity >=0.8.9 <0.9.0;
+pragma solidity ^0.8.4;
 
 import "./structs/PaperMintData.sol";
 import "./PaperVerificationBase.sol";

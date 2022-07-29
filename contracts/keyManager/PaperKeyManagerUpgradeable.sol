@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import "./IPaperKeyManager.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
@@ -9,6 +10,7 @@ import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.
 /// @custom:security-contact team@paper.xyz
 contract PaperKeyManagerUpgradeable is
     Initializable,
+    IPaperKeyManager,
     AccessControlUpgradeable,
     UUPSUpgradeable
 {
@@ -18,7 +20,7 @@ contract PaperKeyManagerUpgradeable is
 
     using ECDSAUpgradeable for bytes32;
 
-    event RegisterdPaperKey(
+    event RegisteredPaperKey(
         address indexed contractAddress,
         address indexed paperKey
     );
@@ -55,36 +57,35 @@ contract PaperKeyManagerUpgradeable is
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function register(address _paperKey) external {
+    function register(address _paperKey) external override returns (bool) {
         contractToPaperKeyMapping[msg.sender] = _paperKey;
-        emit RegisterdPaperKey(msg.sender, _paperKey);
+        emit RegisteredPaperKey(msg.sender, _paperKey);
+        return true;
     }
 
     function registerBatch(
         address[] calldata _contracts,
-        address[] calldata _paperKey
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(
-            _contracts.length == _paperKey.length,
-            "_contracts and _paperKey arguments have different length"
-        );
-        require(
-            _contracts.length < 200,
-            "Trying to update to many contracts at once"
-        );
+        address[] calldata _paperKeys
+    )
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+        batchCallCompliant(_contracts, _paperKeys)
+        returns (bool)
+    {
         for (uint8 i = 0; i < _contracts.length; ++i) {
             address contractAddress = _contracts[i];
-            address paperKey = _paperKey[i];
+            address paperKey = _paperKeys[i];
             contractToPaperKeyMapping[contractAddress] = paperKey;
-            emit RegisterdPaperKey(contractAddress, paperKey);
+            emit RegisteredPaperKey(contractAddress, paperKey);
         }
+        return true;
     }
 
     function verify(
         bytes32 hash,
         bytes32 _nonce,
         bytes calldata _signature
-    ) external {
+    ) external override returns (bool) {
         address recoveredAddress = hash.recover(_signature);
         require(
             recoveredAddress == contractToPaperKeyMapping[msg.sender],
@@ -95,6 +96,7 @@ contract PaperKeyManagerUpgradeable is
             "Signature already used"
         );
         contractToNoncesMapping[msg.sender][_nonce] = true;
+        return true;
     }
 
     function update(address _contractAddress, address _newPaperKey)
@@ -106,31 +108,44 @@ contract PaperKeyManagerUpgradeable is
 
     function updateBatch(
         address[] calldata _contracts,
-        address[] calldata _paperKey
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(
-            _contracts.length == _paperKey.length,
-            "_contracts and _paperKey arguments have different length"
-        );
-        require(
-            _contracts.length < 200,
-            "Trying to update to many contracts at once"
-        );
+        address[] calldata _paperKeys
+    )
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+        batchCallCompliant(_contracts, _paperKeys)
+    {
         for (uint8 i = 0; i < _contracts.length; ++i) {
             address contractAddress = _contracts[i];
-            address paperKey = _paperKey[i];
+            address paperKey = _paperKeys[i];
             contractToPaperKeyMapping[contractAddress] = paperKey;
-            emit RegisterdPaperKey(contractAddress, paperKey);
+            emit RegisteredPaperKey(contractAddress, paperKey);
         }
     }
 
     function remove(address _contractAddress)
         external
         onlyRole(DEFAULT_ADMIN_ROLE)
+        returns (bool)
     {
         delete contractToPaperKeyMapping[_contractAddress];
+        emit DeletedPaperKey(_contractAddress);
+        return true;
     }
 
+    function removeBatch(address[] calldata _contractAddresses)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+        returns (bool)
+    {
+        for (uint256 i = 0; i < _contractAddresses.length; ++i) {
+            address contractAddress = _contractAddresses[i];
+            delete contractToPaperKeyMapping[contractAddress];
+            emit DeletedPaperKey(contractAddress);
+        }
+        return true;
+    }
+
+    /// DO NOT REMOVE
     function _authorizeUpgrade(address newImplementation)
         internal
         override
