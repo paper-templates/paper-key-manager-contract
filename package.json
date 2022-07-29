@@ -8,7 +8,7 @@
   "scripts": {
     "release": "cd ./contracts && npm publish && cd ../",
     "test": "hardhat test",
-    "gas-report": "cross-env ENABLE_GAS_REPORT=true npm run test"
+    "test:gas": "cross-env REPORT_GAS=true npm run test"
   },
   "repository": {
     "type": "git",

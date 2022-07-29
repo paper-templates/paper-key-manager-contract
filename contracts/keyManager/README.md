@@ -15,16 +15,33 @@
 
 ## Usage
 
+make sure to have the `@paperxyz/contracts` package downloaded!
+
 ```solidity
+import "@paperxyz/contracts/keyManager/IPaperKeyManager.sol";
+
 const YourContract {
     IPaperKeyManager paperKeyManager;
+
+    // to set the initial paperKey for the contract
     constructor(..., address _paperKeyManagerAddress, address _paperKey) {
-        // to set the initial paperKey for the contract
-        paperKeyManager = IPaperKeyManager(_paperKeyManager);
+        paperKeyManager = IPaperKeyManager(_paperKeyManagerAddress)
         paperKeyManager.register(_paperKey);
     }
-    function yourFunction(... your params, bytes32 _nonce, bytes calldata _signature) ... {
-        paperKeyManager.verify(keccak256(abi.encode(...your params, _nonce)), _nonce, _signature);
+
+    // onlyPaper modifier to easily restrict multiple different function
+    modifier onlyPaper(byte32 _hash, bytes32 _nonce, bytes calldata _signature() {
+        bool success = paperKeyManager.verify(_hash, _nonce, _signature);
+        require(success, "Failed to verify signature");
+        _;
+    }
+
+    // using the modifier
+    function yourFunction(... your params, bytes32 _nonce, bytes calldata _signature)
+        onlyPaper(keccak256(abi.encode(...your params)), _nonce, _signature)
+        ...
+    {
+        // your function
     }
 }
 ```

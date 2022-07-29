@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import "hardhat/console.sol";
 import "./IPaperKeyManager.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -29,6 +30,7 @@ contract PaperKeyManagerUpgradeable is
         address indexed paperKey
     );
     event DeletedPaperKey(address indexed contractAddress);
+    event Verified(bytes32 indexed nonce, bytes indexed signature);
 
     modifier batchCallCompliant(
         address[] calldata _contracts,
@@ -82,11 +84,15 @@ contract PaperKeyManagerUpgradeable is
     }
 
     function verify(
-        bytes32 hash,
+        bytes32 _hash,
         bytes32 _nonce,
         bytes calldata _signature
     ) external override returns (bool) {
-        address recoveredAddress = hash.recover(_signature);
+        bytes32 signedMessage = keccak256(abi.encodePacked(_hash, _nonce));
+        bytes32 signedHash = ECDSAUpgradeable.toEthSignedMessageHash(
+            signedMessage
+        );
+        address recoveredAddress = signedHash.recover(_signature);
         require(
             recoveredAddress == contractToPaperKeyMapping[msg.sender],
             "Invalid signature or hash"
@@ -96,6 +102,7 @@ contract PaperKeyManagerUpgradeable is
             "Signature already used"
         );
         contractToNoncesMapping[msg.sender][_nonce] = true;
+        emit Verified(_nonce, _signature);
         return true;
     }
 

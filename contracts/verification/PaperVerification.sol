@@ -5,6 +5,9 @@ import "./structs/PaperMintData.sol";
 import "./PaperVerificationBase.sol";
 import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 
+/// @notice @deprecated in favour for PaperKeyManager
+/// @author Winston Yeo
+/// @custom:deprecated This is deprecated in favour for PaperKeyManager
 contract PaperVerification is EIP712("Paper", "1"), PaperVerificationBase {
     constructor(address _paperKey) PaperVerificationBase(_paperKey) {}
 

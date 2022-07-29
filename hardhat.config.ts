@@ -87,6 +87,9 @@ const config: HardhatUserConfig = {
       polygonMumbai: POLYGON_BLOCK_EXPLORER_API_KEY as string,
     },
   },
+  gasReporter: {
+    enabled: process.env.REPORT_GAS ? true : false,
+  },
 };
 
 export default config;
