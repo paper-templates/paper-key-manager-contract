@@ -33,7 +33,7 @@ const EVM_PRIVATE_KEY = process.env.EVM_PRIVATE_KEY;
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.9",
+    version: "0.8.4",
     settings: {
       optimizer: {
         enabled: true,
@@ -47,16 +47,21 @@ const config: HardhatUserConfig = {
       forking: {
         url: `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
         // to enable caching for speeding up tests
-        blockNumber: 15170231,
+        blockNumber: 15136645,
       },
     },
     rinkeby: {
-      url: `eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
+      url: `https://eth-goerli.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
+      accounts: [EVM_PRIVATE_KEY!],
+      gasMultiplier: DEFAULT_GAS_MULTIPLIER,
+    },
+    goerli: {
+      url: `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
       accounts: [EVM_PRIVATE_KEY!],
       gasMultiplier: DEFAULT_GAS_MULTIPLIER,
     },
     mainnet: {
-      url: `eth-mainnet.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
+      url: `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
       accounts: [EVM_PRIVATE_KEY!],
       gasMultiplier: DEFAULT_GAS_MULTIPLIER,
     },
@@ -81,6 +86,9 @@ const config: HardhatUserConfig = {
       polygon: POLYGON_BLOCK_EXPLORER_API_KEY as string,
       polygonMumbai: POLYGON_BLOCK_EXPLORER_API_KEY as string,
     },
+  },
+  gasReporter: {
+    enabled: process.env.REPORT_GAS ? true : false,
   },
 };
 

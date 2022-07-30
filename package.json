@@ -1,14 +1,17 @@
 {
-  "name": "@paperxyz/contracts",
+  "name": "@paperxyz/solidity",
   "version": "0.0.17",
   "description": "Contracts to help easily bootstrap paper compatible smart contracts on EVM chains",
   "files": [
     "/contracts/**/*.sol"
   ],
   "scripts": {
+    "patch": "cd ./contracts && npm version patch && cd ../",
+    "minor": "cd ./contracts && npm version minor && cd ../",
+    "major": "cd ./contracts && npm version major && cd ../",
     "release": "cd ./contracts && npm publish && cd ../",
     "test": "hardhat test",
-    "gas-report": "cross-env ENABLE_GAS_REPORT=true npm run test"
+    "test:gas": "cross-env REPORT_GAS=true npm run test"
   },
   "repository": {
     "type": "git",

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import "./IPaperKeyManager.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
@@ -9,6 +10,7 @@ import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.
 /// @custom:security-contact team@paper.xyz
 contract PaperKeyManagerUpgradeable is
     Initializable,
+    IPaperKeyManager,
     AccessControlUpgradeable,
     UUPSUpgradeable
 {
@@ -18,7 +20,7 @@ contract PaperKeyManagerUpgradeable is
 
     using ECDSAUpgradeable for bytes32;
 
-    event RegisterdPaperKey(
+    event RegisteredPaperKey(
         address indexed contractAddress,
         address indexed paperKey
     );
@@ -27,6 +29,7 @@ contract PaperKeyManagerUpgradeable is
         address indexed paperKey
     );
     event DeletedPaperKey(address indexed contractAddress);
+    event Verified(bytes32 indexed nonce, bytes indexed signature);
 
     modifier batchCallCompliant(
         address[] calldata _contracts,
@@ -55,37 +58,44 @@ contract PaperKeyManagerUpgradeable is
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function register(address _paperKey) external {
+    function register(address _paperKey) public override returns (bool) {
+        require(
+            contractToPaperKeyMapping[msg.sender] == address(0),
+            "contract already registered"
+        );
         contractToPaperKeyMapping[msg.sender] = _paperKey;
-        emit RegisterdPaperKey(msg.sender, _paperKey);
+        emit RegisteredPaperKey(msg.sender, _paperKey);
+        return true;
     }
 
     function registerBatch(
         address[] calldata _contracts,
-        address[] calldata _paperKey
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(
-            _contracts.length == _paperKey.length,
-            "_contracts and _paperKey arguments have different length"
-        );
-        require(
-            _contracts.length < 200,
-            "Trying to update to many contracts at once"
-        );
+        address[] calldata _paperKeys
+    )
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+        batchCallCompliant(_contracts, _paperKeys)
+        returns (bool)
+    {
         for (uint8 i = 0; i < _contracts.length; ++i) {
             address contractAddress = _contracts[i];
-            address paperKey = _paperKey[i];
+            address paperKey = _paperKeys[i];
             contractToPaperKeyMapping[contractAddress] = paperKey;
-            emit RegisterdPaperKey(contractAddress, paperKey);
+            emit RegisteredPaperKey(contractAddress, paperKey);
         }
+        return true;
     }
 
     function verify(
-        bytes32 hash,
+        bytes32 _hash,
         bytes32 _nonce,
         bytes calldata _signature
-    ) external {
-        address recoveredAddress = hash.recover(_signature);
+    ) external override returns (bool) {
+        bytes32 signedMessage = keccak256(abi.encodePacked(_hash, _nonce));
+        bytes32 signedHash = ECDSAUpgradeable.toEthSignedMessageHash(
+            signedMessage
+        );
+        address recoveredAddress = signedHash.recover(_signature);
         require(
             recoveredAddress == contractToPaperKeyMapping[msg.sender],
             "Invalid signature or hash"
@@ -95,42 +105,68 @@ contract PaperKeyManagerUpgradeable is
             "Signature already used"
         );
         contractToNoncesMapping[msg.sender][_nonce] = true;
+        emit Verified(_nonce, _signature);
+        return true;
     }
 
     function update(address _contractAddress, address _newPaperKey)
-        external
+        public
         onlyRole(DEFAULT_ADMIN_ROLE)
+        returns (bool)
     {
+        require(
+            contractToPaperKeyMapping[_contractAddress] != address(0),
+            "_contractAddress has not been registered"
+        );
         contractToPaperKeyMapping[_contractAddress] = _newPaperKey;
+        emit UpdatedPaperKey(_contractAddress, _newPaperKey);
+        return true;
     }
 
     function updateBatch(
         address[] calldata _contracts,
-        address[] calldata _paperKey
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(
-            _contracts.length == _paperKey.length,
-            "_contracts and _paperKey arguments have different length"
-        );
-        require(
-            _contracts.length < 200,
-            "Trying to update to many contracts at once"
-        );
+        address[] calldata _paperKeys
+    )
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+        batchCallCompliant(_contracts, _paperKeys)
+        returns (bool)
+    {
         for (uint8 i = 0; i < _contracts.length; ++i) {
             address contractAddress = _contracts[i];
-            address paperKey = _paperKey[i];
-            contractToPaperKeyMapping[contractAddress] = paperKey;
-            emit RegisterdPaperKey(contractAddress, paperKey);
+            address paperKey = _paperKeys[i];
+            update(contractAddress, paperKey);
         }
+        return true;
     }
 
     function remove(address _contractAddress)
-        external
+        public
         onlyRole(DEFAULT_ADMIN_ROLE)
+        returns (bool)
     {
+        require(
+            contractToPaperKeyMapping[_contractAddress] != address(0),
+            "_contractAddress does not exists"
+        );
         delete contractToPaperKeyMapping[_contractAddress];
+        emit DeletedPaperKey(_contractAddress);
+        return true;
     }
 
+    function removeBatch(address[] calldata _contractAddresses)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+        returns (bool)
+    {
+        for (uint256 i = 0; i < _contractAddresses.length; ++i) {
+            address contractAddress = _contractAddresses[i];
+            remove(contractAddress);
+        }
+        return true;
+    }
+
+    /// DO NOT REMOVE
     function _authorizeUpgrade(address newImplementation)
         internal
         override
