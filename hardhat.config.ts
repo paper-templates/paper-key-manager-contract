@@ -51,12 +51,12 @@ const config: HardhatUserConfig = {
       },
     },
     rinkeby: {
-      url: `https://eth-goerli.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
+      url: `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
       accounts: [EVM_PRIVATE_KEY!],
       gasMultiplier: DEFAULT_GAS_MULTIPLIER,
     },
     goerli: {
-      url: `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
+      url: `https://eth-goerli.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
       accounts: [EVM_PRIVATE_KEY!],
       gasMultiplier: DEFAULT_GAS_MULTIPLIER,
     },
@@ -80,6 +80,7 @@ const config: HardhatUserConfig = {
     apiKey: {
       // Ethereum
       rinkeby: ETH_BLOCK_EXPLORER_API_KEY as string,
+      goerli: ETH_BLOCK_EXPLORER_API_KEY as string,
       mainnet: ETH_BLOCK_EXPLORER_API_KEY as string,
 
       // Polygon

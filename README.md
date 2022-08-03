@@ -22,3 +22,10 @@ Install the SDK with your favorite package manager `npm` or `yarn` or `pnpm`.
 `yarn add @paperxyz/contracts`
 
 `pnpm add @paperxyz/contracts`
+
+## Usage
+
+High level overview for the various contracts. For more information, check directly in the contract folder's readme.
+
+- `PaperVerification` - Deprecated in favour for `PaperKeyManager`. Current customers will continue to be supported. New Customers will have to use `PaperKeyManager`.
+- `PaperKeyManager`- Used to allow users to easily restrict certain function to only Paper.

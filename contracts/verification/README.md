@@ -11,7 +11,9 @@
 
 [Paper](https://paper.xyz) is a developer-first NFT checkout solution that easily onboard users without wallets or cryptocurrencies.
 
-This set of contracts allow developers to easily integrate the `paperMint` function with paper.
+# Deprecated
+
+`PaperVerification` has been deprecated in favour of `PaperKeyManager`
 
 ## Installation
 

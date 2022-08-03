@@ -13,6 +13,16 @@
 
 # Paper Key Manager
 
+## Installation
+
+Install the SDK with your favorite package manager `npm` or `yarn` or `pnpm`.
+
+`npm install @paperxyz/contracts`
+
+`yarn add @paperxyz/contracts`
+
+`pnpm add @paperxyz/contracts`
+
 ## Usage
 
 make sure to have the `@paperxyz/contracts` package downloaded!

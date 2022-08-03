@@ -10,9 +10,9 @@ import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.
 /// @custom:security-contact team@paper.xyz
 contract PaperKeyManagerUpgradeable is
     Initializable,
-    IPaperKeyManager,
     AccessControlUpgradeable,
-    UUPSUpgradeable
+    UUPSUpgradeable,
+    IPaperKeyManager
 {
     mapping(address => address) private contractToPaperKeyMapping;
     mapping(address => mapping(bytes32 => bool))
