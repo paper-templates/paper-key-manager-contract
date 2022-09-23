@@ -35,7 +35,7 @@ const YourContract {
     IPaperKeyManager paperKeyManager;
 
     // to set the initial paperKey for the contract
-    constructor(..., address _paperKeyManagerAddress, address _paperKey) {
+    constructor(..., address _paperKeyManagerAddress) {
         paperKeyManager = IPaperKeyManager(_paperKeyManagerAddress);
     }
 
