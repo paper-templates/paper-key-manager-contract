@@ -45,8 +45,8 @@ const YourContract {
         require(success, "Failed to verify signature");
         _;
     }
-
-  	function registerPaperKey(address _paperKey) external onlyOwner {
+    
+    function registerPaperKey(address _paperKey) external onlyOwner {
     	require(paperKeyManager.register(_paperKey), "Error registering key");
     }
   
