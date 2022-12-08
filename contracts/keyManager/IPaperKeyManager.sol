@@ -4,11 +4,11 @@ pragma solidity ^0.8.4;
 /// @title Paper Key Manager
 /// @author Winston Yeo
 /// @notice PaperKeyManager makes it easy for developers to restrict certain functions to Paper.
-/// @dev Developers are in charge of registering the contract with the initial Paper key. Paper will then help you  automatically rotate and update your key in line with good security hygiene
+/// @dev Developers are in charge of registering the contract with the initial Paper Access Token. Paper will then help you  automatically rotate and update your key in line with good security hygiene
 interface IPaperKeyManager {
-    /// @notice Registers a Paper Key to a contract
+    /// @notice Registers a Paper Access Token to a contract
     /// @dev Registers the @param _paperKey with the caller of the function
-    /// @param _paperKey The Paper key that is associated with the checkout. You should be able to find this in the response of the checkout API or on the checkout dashbaord.
+    /// @param _paperKey The Paper Access Token that is associated with the checkout. You should be able to find this in the response of the checkout API or on the checkout dashbaord.
     /// @return bool indicating if the @param _paperKey was successfully registered with the calling address
     function register(address _paperKey) external returns (bool);
 
@@ -23,4 +23,12 @@ interface IPaperKeyManager {
         bytes32 _nonce,
         bytes calldata _signature
     ) external returns (bool);
+
+    /// @notice Checks the current registered Paper Access Token for a given contract address
+    /// @param _contractAddress The contract address that is to be checked for.
+    /// @return address corresponding to the expected paper Access Token that is to be resolved from signature originating from @param _contractAddress
+    function checkRegisteredKey(address _contractAddress)
+        external
+        view
+        returns (address);
 }

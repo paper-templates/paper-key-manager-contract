@@ -58,11 +58,16 @@ contract PaperKeyManagerUpgradeable is
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
+    function checkRegisteredKey(address _contractAddress)
+        external
+        view
+        override
+        returns (address)
+    {
+        return contractToPaperKeyMapping[_contractAddress];
+    }
+
     function register(address _paperKey) public override returns (bool) {
-        require(
-            contractToPaperKeyMapping[msg.sender] == address(0),
-            "contract already registered"
-        );
         contractToPaperKeyMapping[msg.sender] = _paperKey;
         emit RegisteredPaperKey(msg.sender, _paperKey);
         return true;

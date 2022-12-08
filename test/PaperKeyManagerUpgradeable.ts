@@ -105,7 +105,7 @@ describe("PaperKeyManagerUpgradeable", function () {
         .to.emit(contract, "RegisteredPaperKey")
         .withArgs(randomAccount1.address, paperKey);
     });
-    it("Should not be able to register contract that is already registered", async function () {
+    it("Should be able to re-register contract that is already registered", async function () {
       const { contract, owner, randomAccount1, paperKeySigner } =
         await loadFixture(DeployContract);
       const paperKey = paperKeySigner.address;
@@ -113,10 +113,9 @@ describe("PaperKeyManagerUpgradeable", function () {
       await expect(contract.connect(owner).register(paperKey))
         .to.emit(contract, "RegisteredPaperKey")
         .withArgs(owner.address, paperKey);
-
-      await expect(
-        contract.connect(owner).register(paperKey)
-      ).to.be.revertedWith("contract already registered");
+      await expect(contract.connect(owner).register(paperKey))
+        .to.emit(contract, "RegisteredPaperKey")
+        .withArgs(owner.address, paperKey);
     });
     it("Should be able registerBatch of contract and addresses if caller is DEFAULT_ADMIN_ROLE", async function () {
       const { contract, owner, randomAccount1, paperKeySigner } =
